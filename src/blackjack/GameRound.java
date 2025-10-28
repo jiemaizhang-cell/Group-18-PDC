@@ -17,7 +17,6 @@ public class GameRound {
     private final Player banker;
     private final Deck deck;
 
-    //preparations before starting a game.
     public GameRound() {
         deck = new Deck();
         deck.shuffle();
@@ -25,103 +24,73 @@ public class GameRound {
         banker = new Banker(deck);
     }
 
-    //every round
-    public int playRound(Scanner in) throws InterruptedException {
-        GameUtils.printLine();
-
-        //Human player gets the first card.
+    public void startRound() {
         human.getHandsCard();
-        System.out.println("The first card that you get is: " + human.showCard() + " (Current score: " + human.countCard() + ")");
-        GameUtils.pause();
+        human.countCard(); 
 
-        //Banker gets the first card.
         banker.getHandsCard();
-        System.out.println("The first card that I get is: " + banker.showCard() + " (Current score: " + banker.countCard() + ")");
-        GameUtils.pause();
+        banker.countCard(); 
 
-        //Human player gets the second card.
         human.getHandsCard();
-        System.out.println("The second card that you get is: " + human.showCard() + " (Current score: " + human.countCard() + ")");
-        GameUtils.pause();
+        human.countCard();
 
-        //Banker gets the second card and hides it.
         banker.getHandsCard();
         banker.countCard();
+    }
 
-        //judge if someone gets the strongest hand--Blackjack!
+    public int checkInitialBlackjack() {
         if (human.number == 21 && banker.number != 21) {
-            System.out.println("Blackjack!!! you win!!!");
             return 1;
         } else if (banker.number == 21) {
-            System.out.println("Let's see what my hidden card is. Blackjack!!! I win");
             return -1;
         }
+        return 0; 
+    }
 
-        //Player's turn. Ask the player to add cards or keep the hand.
-        while (human.number < 21) {
-            System.out.println("Do you need more cards? yes=1, no=0(quit playing Blackjack=-1)");
-            int flag = in.nextInt();
-            if (flag == -1) {
-                System.out.println("You choose to quit the game.");
-                System.exit(0);
-            }
-            if (flag == 0) {
-                break;
-            }
-            human.getHandsCard();
-            System.out.println("The new card that you get is: " + human.showCard() + " (Current score: " + human.countCard() + ")");
-            GameUtils.pause();
+    public boolean playerHits() {
+        human.getHandsCard();
+        human.countCard(); 
 
-            //deal with the situation with Ace.
-            if (human.number > 21 && human.hasAce()) {
-                human.number -= 10;
-                System.out.println("you can change your 'A' to '1'. New score: " + human.number);
-                GameUtils.pause();
-            }
-        }
-        //When the value>21, blow up->lose.
-        if (human.number > 21) {
-            System.out.println("OHNO you blew up!");
-            GameUtils.pause();
-            return -1;
+        if (human.number > 21 && human.hasAce()) {
+            human.number -= 10;
         }
 
-        //Banker's turn. draw cards until the total is 17 or higher and stop at 17 or more.
-        System.out.println("The second card that I get is: " + banker.showCard() + " (Current score: " + banker.countCard() + ")");
-        GameUtils.pause();
+        return human.number > 21;
+    }
+
+    public int playerStands() {
         while (banker.number < 17) {
             banker.getHandsCard();
-            System.out.println("The new card that I get is: " + banker.showCard() + " (Current score: " + banker.countCard() + ")");
-            GameUtils.pause();
+            banker.countCard(); 
 
-            //deal with the situation with Ace.
             if (banker.number > 21 && banker.hasAce()) {
                 banker.number -= 10;
-                System.out.println("I change my 'A' to '1'. New score: " + banker.number);
-                GameUtils.pause();
             }
         }
 
-        //When the value>21, blow up->lose.
         if (banker.number > 21) {
-            System.out.println("OHNO I blew up! Congratulations!!!");
-            GameUtils.pause();
-            return 1;
+            return 1; 
         }
 
-        //compare the values of the hands.
         if (human.number == banker.number) {
-            System.out.println("Hey we tied!");
-            GameUtils.pause();
-            return 0;
+            return 0; 
         } else if (human.number > banker.number) {
-            System.out.println("You beat me this round!");
-            GameUtils.pause();
-            return 1;
+            return 1; 
         } else {
-            System.out.println("I am a bit better this round~");
-            GameUtils.pause();
-            return -1;
+            return -1; 
         }
     }
+
+    public String getPlayerHandDescription() {
+        return human.getFullHandAsString() + " (Score: " + human.number + ")";
+    }
+
+    public String getBankerHandDescription(boolean showAll) {
+        if (showAll) {
+            return banker.getFullHandAsString() + " (Score: " + banker.number + ")";
+        } else {
+            return banker.getHiddenHandAsString() + " (Score: ?)";
+        }
+    }
+
 }

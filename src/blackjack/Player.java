@@ -68,5 +68,42 @@ public abstract class Player {
         }
         return false;
     }
+    
+    public String getFullHandAsString() {
+        
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        
+        for (int i = 0; i < hands.size(); i++) {
+            
+            sb.append(hands.get(i).toString()); 
+            
+            if (i < hands.size() - 1) {
+              
+                sb.append("], [");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    
+    public String getHiddenHandAsString() {
+      
+        if (hands.size() < 2) {
+            return "[X]"; 
+        }
+
+        StringBuilder sb = new StringBuilder();
+       
+        sb.append("[X], [");
+        
+        
+        sb.append(hands.get(1).toString());
+        
+        sb.append("]");
+        return sb.toString();
+    }
 
 }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
  *
  * @author 14432
  */
-//class3-Player: Built by Jiemai. initialize all players
+//Built by Jiemai. initialize all players
 public abstract class Player {
 
     public String name;
@@ -68,19 +68,18 @@ public abstract class Player {
         }
         return false;
     }
-    
+
     public String getFullHandAsString() {
-        
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        
+
         for (int i = 0; i < hands.size(); i++) {
-            
-            sb.append(hands.get(i).toString()); 
-            
+
+            sb.append(hands.get(i).toString());
+
             if (i < hands.size() - 1) {
-              
+
                 sb.append("], [");
             }
         }
@@ -88,28 +87,30 @@ public abstract class Player {
         return sb.toString();
     }
 
-    
     public String getHiddenHandAsString() {
-      
+
         if (hands.size() < 2) {
-            return "[X]"; 
+            return "[X]";
         }
 
         StringBuilder sb = new StringBuilder();
-       
+
         sb.append("[X], [");
-        
-        
+
         sb.append(hands.get(1).toString());
-        
+
         sb.append("]");
         return sb.toString();
     }
-    
-    
+
     public java.util.List<Card> getHandList() {
-   
-        return this.hands; 
+
+        return this.hands;
+    }
+
+    public int getHandSize() {
+
+        return hands.size();
     }
 
 }

@@ -4,11 +4,9 @@
  */
 package blackjack;
 
-/**
- *
- * @author Lenovo
- */
+// build by Jiemai --to Transmit and store the game's state
 public class GameContext {
+
     private String playerName;
     private int totalRounds;
     private int currentRound = 1;
@@ -17,21 +15,35 @@ public class GameContext {
     public GameContext() {
         this.scoreboard = new ScoreBoard();
     }
-    
-    
 
-    public String getPlayerName() { return playerName; }
-    public void setPlayerName(String name) { this.playerName = name; }
-    
-    public int getTotalRounds() { return totalRounds; }
-    public void setTotalRounds(int rounds) { this.totalRounds = rounds; }
-    
-    public ScoreBoard getScoreboard() { return scoreboard; }
-    
-    public int getCurrentRound() { return currentRound; }
-    public void incrementRound() { this.currentRound++; }
-    
-  
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String name) {
+        this.playerName = name;
+    }
+
+    public int getTotalRounds() {
+        return totalRounds;
+    }
+
+    public void setTotalRounds(int rounds) {
+        this.totalRounds = rounds;
+    }
+
+    public ScoreBoard getScoreboard() {
+        return scoreboard;
+    }
+
+    public int getCurrentRound() {
+        return currentRound;
+    }
+
+    public void incrementRound() {
+        this.currentRound++;
+    }
+
     public void resetGame() {
         this.playerName = "";
         this.totalRounds = 0;

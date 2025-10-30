@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.CardLayout;
 
+//main class:Built by Jiemai. to Created the main window of the game
 public class BlackjackGUI {
     public static void main(String[] args) {
        

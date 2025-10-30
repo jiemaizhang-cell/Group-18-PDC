@@ -8,12 +8,12 @@ package blackjack;
  *
  * @author 14432
  */
-//class7-ScoreBoard, Built by Yaya. to analize who to win. It can help with showing final results conveniently.
+//Built by Yaya. to analize who to win. It can help with showing final results conveniently.
 public class ScoreBoard {
 
     private int humanScore = 0;
     private int bankerScore = 0;
-    private String Winner="";
+    private String Winner = "";
 
     //in every round
     public void whoWins(String winner) {
@@ -47,8 +47,8 @@ public class ScoreBoard {
     public int BankerWins() {
         return bankerScore;
     }
-    
-    public String Winner(){
+
+    public String Winner() {
         return Winner;
     }
 

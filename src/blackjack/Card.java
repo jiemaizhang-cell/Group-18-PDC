@@ -8,7 +8,7 @@ package blackjack;
  *
  * @author 14432
  */
-//class1-Card: Built by Jiemai. to get the card
+// Built by Jiemai. to get the card
 public class Card {
 
     String suit;

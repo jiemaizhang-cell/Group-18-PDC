@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package blackjack;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -10,22 +11,21 @@ import java.awt.CardLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 public class MainMenuPanel extends javax.swing.JPanel {
 
     private JPanel mainPanelContainer;
     private CardLayout cardLayout;
     private GameContext context;
-    
-    
+
     public MainMenuPanel(JPanel mainPanel, CardLayout cardLayout, GameContext context) {
-       
+
         this.mainPanelContainer = mainPanel;
         this.cardLayout = cardLayout;
         this.context = context;
-        
-       
-        initComponents(); 
-       
+
+        initComponents();
+
     }
 
     /**
@@ -118,32 +118,30 @@ public class MainMenuPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_nameFieldActionPerformed
 
     private void startGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startGameButtonActionPerformed
-       try {
-           
+        try {
+
             String name = nameField.getText();
-            int rounds = Integer.parseInt(roundsField.getText()); 
+            int rounds = Integer.parseInt(roundsField.getText());
 
             if (name.trim().isEmpty() || rounds <= 0) {
-              
+
                 javax.swing.JOptionPane.showMessageDialog(this, "please input rounds(more than 0)");
                 return;
             }
 
-         
             context.setPlayerName(name);
             context.setTotalRounds(rounds);
-            
-          
+
             cardLayout.show(mainPanelContainer, "GAME");
-            
+
         } catch (NumberFormatException e) {
-        
+
             javax.swing.JOptionPane.showMessageDialog(this, "rounds must be a number");
         }
     }//GEN-LAST:event_startGameButtonActionPerformed
 
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
-       System.exit(0);
+        System.exit(0);
     }//GEN-LAST:event_exitButtonActionPerformed
 
     private void roundsFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_roundsFieldActionPerformed

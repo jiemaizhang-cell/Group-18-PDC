@@ -8,7 +8,7 @@ package blackjack;
  *
  * @author 14432
  */
-//class5-HumanPlayer: Built by Jiemai
+//Built by Jiemai
 public class HumanPlayer extends Player {
 
     public HumanPlayer(Deck deck) {

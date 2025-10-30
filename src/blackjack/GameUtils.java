@@ -8,7 +8,7 @@ package blackjack;
  *
  * @author 14432
  */
-//class8-GameUtils. Built by Yaya. to make the main class more clear since the pause appears too often.
+//Built by Yaya. to make the main class more clear since the pause appears too often.
 public class GameUtils {
 
     public static void pause() throws InterruptedException {

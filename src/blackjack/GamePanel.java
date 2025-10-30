@@ -3,24 +3,21 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package blackjack;
+// build by jiemai-- main game screem
 
-import javax.swing.JButton;
+import Database.database;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.CardLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import Database.database;
 import Database.recordData;
 import javax.swing.ImageIcon;
 import java.awt.Image;
 
 public class GamePanel extends javax.swing.JPanel {
 
-    private JPanel mainPanelContainer;
-    private CardLayout cardLayout;
-    private GameContext context;
+    private final JPanel mainPanelContainer;
+    private final CardLayout cardLayout;
+    private final GameContext context;
 
     private GameRound currentRoundLogic;
 
@@ -41,7 +38,7 @@ public class GamePanel extends javax.swing.JPanel {
         backToMenuButton.addActionListener(e -> onBackToMenu());
 
         nextRoundButton.setVisible(false);
-        backToMenuButton.setVisible(false);
+        backToMenuButton.setVisible(true);
 
     }
 
@@ -52,10 +49,15 @@ public class GamePanel extends javax.swing.JPanel {
         String name = context.getPlayerName();
         messageLabel.setText("欢迎, " + name + "! 祝你好运。");
 
+        //record the player's name
+        recordData.insertLoginRecord(name);
+
         startNewRound();
     }
 
     private void startNewRound() {
+
+        updateMatchScoreLabel();
 
         if (context.getCurrentRound() > context.getTotalRounds()) {
             endGame();
@@ -63,60 +65,65 @@ public class GamePanel extends javax.swing.JPanel {
         }
 
         currentRoundLogic = new GameRound();
-
         currentRoundLogic.startRound();
 
         roundInfoLabel.setText("Round: " + context.getCurrentRound() + " of " + context.getTotalRounds());
-
         updateCardImages(false);
+        updateCardLabels(false);
 
-        int blackjackResult = currentRoundLogic.checkInitialBlackjack();
-
-        if (blackjackResult != 0) {
-
-            if (blackjackResult == 1) {
-                messageLabel.setText("BLACKJACK! You win this round!");
-            } else {
-                messageLabel.setText("Banker has BLACKJACK! You lose.");
-            }
-            endRound(blackjackResult);
-        } else {
-
-            messageLabel.setText("Your turn: Hit or Stand?");
-            hitButton.setVisible(true);
-            standButton.setVisible(true);
-            nextRoundButton.setVisible(false);
-            backToMenuButton.setVisible(false);
-        }
+        messageLabel.setText("Your turn: Hit or Stand?");
+        hitButton.setVisible(true);
+        standButton.setVisible(true);
+        nextRoundButton.setVisible(false);
+        backToMenuButton.setVisible(true);
     }
 
     private void endRound(int result) {
 
-        if (result == 1) {
-            context.getScoreboard().whoWins("HumanPlayer");
-            messageLabel.setText("You win");
-        } else if (result == -1) {
-            context.getScoreboard().whoWins("Banker");
-            messageLabel.setText("You lost");
-        } else {
-            messageLabel.setText("We tie");
+        String winner;
+        switch (result) {
+            case 1 -> {
+                context.getScoreboard().whoWins("HumanPlayer");
+                messageLabel.setText("You win");
+                winner = "Player";
+            }
+            case -1 -> {
+                context.getScoreboard().whoWins("Banker");
+                messageLabel.setText("You lost");
+                winner = "Banker";
+            }
+            default -> {
+                messageLabel.setText("We tie");
+                winner = "Both";
+            }
         }
 
+        //record every round
+        recordData.insertRoundRecord(context.getPlayerName(), context.getCurrentRound(), currentRoundLogic.getPlayerScore(), currentRoundLogic.getBankerScore(), winner);
+
         context.incrementRound();
+
+        updateMatchScoreLabel();
 
         hitButton.setVisible(false);
         standButton.setVisible(false);
         nextRoundButton.setVisible(true);
-        backToMenuButton.setVisible(false);
+        backToMenuButton.setVisible(true);
     }
 
     private void endGame() {
 
         context.getScoreboard().finalResult(context.getPlayerName());
+        //R-E-C-O-R-D, write
         Record.saveRecord(context.getPlayerName(),
                 context.getScoreboard().HumanWins(),
                 context.getScoreboard().BankerWins());
         recordData.insertRecord(context.getPlayerName(), context.getTotalRounds(), context.getScoreboard().HumanWins(), context.getScoreboard().BankerWins(), context.getScoreboard().Winner());
+        //read read read
+        recordData.showAllRecords();
+        recordData.showPlayerHistory(context.getPlayerName());
+        recordData.showTopPlayers();
+        //shut down database
         database.closeConnection();
 
         messageLabel.setText("Game over, the result is" + context.getScoreboard().toString());
@@ -130,12 +137,19 @@ public class GamePanel extends javax.swing.JPanel {
     private void onHit() {
         boolean isBust = currentRoundLogic.playerHits();
 
-        updateCardImages(false);
-
         if (isBust) {
+
             messageLabel.setText("You lost, Banker win");
+
+            updateCardImages(true);
+            updateCardLabels(true);
+
             endRound(-1);
         } else {
+
+            updateCardImages(false);
+            updateCardLabels(false);
+
             messageLabel.setText("Hit or Stand?");
         }
     }
@@ -147,6 +161,7 @@ public class GamePanel extends javax.swing.JPanel {
         int result = currentRoundLogic.playerStands();
 
         updateCardImages(true);
+        updateCardLabels(true);
 
         endRound(result);
     }
@@ -159,18 +174,15 @@ public class GamePanel extends javax.swing.JPanel {
 
     private void updateCardImages(boolean showAllDealerCards) {
 
-        
         playerCardPanel.removeAll();
         bankerCardPanel.removeAll();
 
-        
         java.util.List<Card> playerCards = currentRoundLogic.getPlayerHand();
         java.util.List<Card> bankerCards = currentRoundLogic.getBankerHand();
 
-        
-        int cardWidth = 90;  
-        int cardHeight = 125; 
-      
+        int cardWidth = 90;
+        int cardHeight = 125;
+
         try {
             for (Card card : playerCards) {
                 String suit = card.getSuit().toString().toLowerCase();
@@ -182,12 +194,10 @@ public class GamePanel extends javax.swing.JPanel {
                 if (imgURL != null) {
                     ImageIcon icon = new ImageIcon(imgURL);
 
-                    
                     Image image = icon.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
                     ImageIcon scaledIcon = new ImageIcon(image);
-                    
 
-                    playerCardPanel.add(new JLabel(scaledIcon)); 
+                    playerCardPanel.add(new JLabel(scaledIcon));
                 } else {
                     System.err.println("can not find picture: " + imagePath);
                     playerCardPanel.add(new JLabel("[" + card.toString() + "]"));
@@ -198,30 +208,26 @@ public class GamePanel extends javax.swing.JPanel {
             playerCardPanel.add(new JLabel("Error occurred while loading the player's cards."));
         }
 
-       
         try {
             String cardBackPath = "cards/card_back.jpg";
             java.net.URL cardBackURL = getClass().getResource(cardBackPath);
             ImageIcon cardBackIcon = null;
 
-            
             if (cardBackURL != null) {
                 ImageIcon originalIcon = new ImageIcon(cardBackURL);
                 Image image = originalIcon.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
                 cardBackIcon = new ImageIcon(image);
             }
-            
 
             for (int i = 0; i < bankerCards.size(); i++) {
                 if (i == 0 && !showAllDealerCards) {
-                  
+
                     if (cardBackIcon != null) {
                         bankerCardPanel.add(new JLabel(cardBackIcon));
                     } else {
-                        bankerCardPanel.add(new JLabel("[X]")); 
+                        bankerCardPanel.add(new JLabel("[X]"));
                     }
                 } else {
-                    // 显示明牌
                     Card card = bankerCards.get(i);
                     String suit = card.getSuit().toString().toLowerCase();
                     String rank = card.getValue().toString();
@@ -231,10 +237,8 @@ public class GamePanel extends javax.swing.JPanel {
                     if (imgURL != null) {
                         ImageIcon icon = new ImageIcon(imgURL);
 
-                       
                         Image image = icon.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
                         ImageIcon scaledIcon = new ImageIcon(image);
-                        
 
                         bankerCardPanel.add(new JLabel(scaledIcon));
                     } else {
@@ -247,12 +251,32 @@ public class GamePanel extends javax.swing.JPanel {
             bankerCardPanel.add(new JLabel("Error occurred while loading the dealer's cards."));
         }
 
-        
         playerCardPanel.revalidate();
         playerCardPanel.repaint();
 
         bankerCardPanel.revalidate();
         bankerCardPanel.repaint();
+    }
+
+    private void updateCardLabels(boolean showAllDealerCards) {
+
+        playerScoreLabel.setText("Score: " + currentRoundLogic.getPlayerScore());
+
+        if (showAllDealerCards) {
+
+            bankerScoreLabel.setText("Score: " + currentRoundLogic.getBankerScore());
+        } else {
+
+            bankerScoreLabel.setText("Score: ?");
+        }
+    }
+
+    private void updateMatchScoreLabel() {
+
+        int playerWins = context.getScoreboard().HumanWins();
+        int bankerWins = context.getScoreboard().BankerWins();
+
+        matchScoreLabel.setText("Match Score: Player " + playerWins + " - Banker " + bankerWins);
     }
 
     @SuppressWarnings("unchecked")
@@ -269,6 +293,9 @@ public class GamePanel extends javax.swing.JPanel {
         backToMenuButton = new javax.swing.JButton();
         bankerCardPanel = new javax.swing.JPanel();
         playerCardPanel = new javax.swing.JPanel();
+        playerScoreLabel = new javax.swing.JLabel();
+        bankerScoreLabel = new javax.swing.JLabel();
+        matchScoreLabel = new javax.swing.JLabel();
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
@@ -330,35 +357,67 @@ public class GamePanel extends javax.swing.JPanel {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
+        playerScoreLabel.setText("Score: 0");
+
+        bankerScoreLabel.setText("Score: ?");
+
+        matchScoreLabel.setFont(new java.awt.Font("Microsoft YaHei UI", 0, 18)); // NOI18N
+        matchScoreLabel.setText("Match Score: Player 0 - Banker 0");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addComponent(BankerCardsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(messageLabel)
-                    .addComponent(bankerCardPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(BankerCardsLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bankerCardPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(bankerScoreLabel)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(playerCardPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(playerCardsLabel))
-                    .addComponent(roundInfoLabel))
-                .addGap(59, 59, 59))
+                        .addComponent(playerCardsLabel)
+                        .addGap(59, 59, 59))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(playerScoreLabel)
+                        .addGap(76, 76, 76))))
             .addGroup(layout.createSequentialGroup()
-                .addGap(54, 54, 54)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(nextRoundButton)
-                    .addComponent(hitButton))
-                .addGap(55, 55, 55)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(57, 57, 57)
+                        .addComponent(matchScoreLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(nextRoundButton))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(messageLabel)
+                                    .addGap(102, 102, 102))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(hitButton)
+                                    .addGap(39, 39, 39)
+                                    .addComponent(standButton)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))))))
+                .addContainerGap(93, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(standButton)
-                    .addComponent(backToMenuButton))
-                .addContainerGap(36, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(roundInfoLabel)
+                        .addGap(51, 51, 51))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(backToMenuButton)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -376,18 +435,24 @@ public class GamePanel extends javax.swing.JPanel {
                             .addComponent(playerCardPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(bankerCardPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(messageLabel)
-                    .addComponent(roundInfoLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 100, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(bankerScoreLabel)
+                    .addComponent(playerScoreLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(roundInfoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(matchScoreLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addComponent(messageLabel)
+                .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(hitButton)
                     .addComponent(standButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(9, 9, 9)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(nextRoundButton)
-                    .addComponent(backToMenuButton))
-                .addGap(13, 13, 13))
+                    .addComponent(backToMenuButton)
+                    .addComponent(nextRoundButton))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -416,11 +481,14 @@ public class GamePanel extends javax.swing.JPanel {
     private javax.swing.JLabel BankerCardsLabel;
     private javax.swing.JButton backToMenuButton;
     private javax.swing.JPanel bankerCardPanel;
+    private javax.swing.JLabel bankerScoreLabel;
     private javax.swing.JButton hitButton;
+    private javax.swing.JLabel matchScoreLabel;
     private javax.swing.JLabel messageLabel;
     private javax.swing.JButton nextRoundButton;
     private javax.swing.JPanel playerCardPanel;
     private javax.swing.JLabel playerCardsLabel;
+    private javax.swing.JLabel playerScoreLabel;
     private javax.swing.JLabel roundInfoLabel;
     private javax.swing.JButton standButton;
     // End of variables declaration//GEN-END:variables

@@ -8,8 +8,7 @@ package blackjack;
  *
  * @author 14432
  */
-//class6-Record: Built by Yaya. to record all the scores and show the records to the corresponding players.
-
+//Built by Yaya. to record all the scores and show the records to the corresponding players.
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

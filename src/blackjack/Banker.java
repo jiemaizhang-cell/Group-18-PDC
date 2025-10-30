@@ -8,7 +8,7 @@ package blackjack;
  *
  * @author 14432
  */
-//class4-Banker: Built by Jiemai.
+//Built by Jiemai.
 public class Banker extends Player {
 
     public Banker(Deck deck) {

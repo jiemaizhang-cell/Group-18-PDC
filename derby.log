@@ -1,0 +1,19 @@
+----------------------------------------------------------------
+Thu Oct 30 16:48:46 CST 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-019a-344e-1d2e-00000d0dd378 
+on database directory C:\Users\Lenovo\Desktop\P18_25294349_25294047\Blackjack\BlackjackDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@77459877 
+Loaded from file:/C:/Users/Lenovo/Desktop/P18_25294349_25294047/Blackjack/lib/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=23.0.2+7-58
+user.dir=C:\Users\Lenovo\Desktop\P18_25294349_25294047\Blackjack
+os.name=Windows 11
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Thu Oct 30 16:48:46 CST 2025: Shutting down Derby engine
+----------------------------------------------------------------
+Thu Oct 30 16:48:46 CST 2025:
+Shutting down instance a816c00e-019a-344e-1d2e-00000d0dd378 on database directory C:\Users\Lenovo\Desktop\P18_25294349_25294047\Blackjack\BlackjackDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@77459877 
+----------------------------------------------------------------

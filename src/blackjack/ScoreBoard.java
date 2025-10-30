@@ -13,6 +13,7 @@ public class ScoreBoard {
 
     private int humanScore = 0;
     private int bankerScore = 0;
+    private String Winner="";
 
     //in every round
     public void whoWins(String winner) {
@@ -29,10 +30,13 @@ public class ScoreBoard {
         System.out.println(name + " " + humanScore + " : " + bankerScore);
         if (humanScore == bankerScore) {
             System.out.println("Tie overall!");
+            Winner = "Both";
         } else if (humanScore > bankerScore) {
             System.out.println("You are the final winner!");
+            Winner = name;
         } else {
             System.out.println("I edge you out!");
+            Winner = "Banker";
         }
     }
 
@@ -42,5 +46,21 @@ public class ScoreBoard {
 
     public int BankerWins() {
         return bankerScore;
+    }
+    
+    public String Winner(){
+        return Winner;
+    }
+
+    public String toString() {
+
+        if (this.HumanWins() > this.BankerWins()) {
+            return "You win! (" + this.HumanWins() + " vs " + this.BankerWins() + ")";
+        } else if (this.BankerWins() > this.HumanWins()) {
+            return "Banker wins! (" + this.BankerWins() + " vs " + this.HumanWins() + ")";
+        } else {
+            return "It's a draw! (" + this.HumanWins() + " vs " + this.BankerWins() + ")";
+        }
+        // ------------------------------------------
     }
 }

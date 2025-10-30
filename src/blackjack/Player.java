@@ -105,5 +105,11 @@ public abstract class Player {
         sb.append("]");
         return sb.toString();
     }
+    
+    
+    public java.util.List<Card> getHandList() {
+   
+        return this.hands; 
+    }
 
 }

@@ -92,5 +92,15 @@ public class GameRound {
             return banker.getHiddenHandAsString() + " (Score: ?)";
         }
     }
+    
+    public java.util.List<Card> getPlayerHand() {
+     
+        return this.human.getHandList();  
+   }
+    
+    public java.util.List<Card> getBankerHand() {
+    
+        return this.banker.getHandList(); 
+    }
 
 }
